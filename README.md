@@ -19,5 +19,5 @@ Il gesto di alzare la mano destra attiva la nota, e abbassarla la interrompe.
 
 1. Clona la repo:
    ```bash
-   git clone https://github.com/tuo-utente/Hand-Music.git
-   cd Hand-Music
+   git clone https://github.com/PsicoPapero/hand-music.git
+   cd hand-music
