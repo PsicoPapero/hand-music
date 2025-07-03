@@ -33,7 +33,12 @@ function videoReady() {
 function draw() {
   // Controllo se il video è pronto
   if (video && video.loadedmetadata) {
+    // Rendi il canvas non speculare (non mirror)
+    push();
+    translate(width, 0);
+    scale(-1, 1);
     image(video, 0, 0, width, height);
+    pop();
   } else {
     background(50);
     fill(255,0,0);
@@ -44,6 +49,10 @@ function draw() {
   }
 
   // Disegna le mani rilevate
+  // Anche i landmarks e le linee devono essere "non speculari"
+  push();
+  translate(width, 0);
+  scale(-1, 1);
   for (let i = 0; i < hands.length; i++) {
     let hand = hands[i];
     // hand.landmarks è un array di punti [x, y, z]
@@ -56,6 +65,7 @@ function draw() {
     // Disegna le linee tra i punti della mano (opzionale, per visualizzare la struttura)
     drawHandConnections(hand.landmarks);
   }
+  pop();
 }
 
 // Funzione per disegnare le connessioni tra i punti della mano
