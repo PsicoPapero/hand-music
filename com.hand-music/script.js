@@ -1,6 +1,10 @@
 let video;
+
 let handposeModel;
 let hands = [];
+let lastHands = [];
+let lastPredictionTime = 0;
+const PREDICTION_INTERVAL = 50; // ms, limita la frequenza di aggiornamento dei risultati
 
 function setup() {
   // Crea il canvas e lo posiziona in alto a sinistra
@@ -9,11 +13,11 @@ function setup() {
 
   video = createCapture(VIDEO, videoReady);
   video.size(640, 480);
-  // video.hide(); // Lascia commentato per debug
+  video.hide(); // Nasconde il video DOM, mostra solo su canvas
 
   // Crea il modello handpose e collega la callback
   handposeModel = ml5.handpose(video, modelReady);
-  handposeModel.on('predict', gotHands);
+  handposeModel.on('predict', gotHandsThrottled);
 }
 
 function modelReady() {
@@ -64,6 +68,8 @@ function draw() {
     }
     // Disegna le linee tra i punti della mano (opzionale, per visualizzare la struttura)
     drawHandConnections(hand.landmarks);
+    // (Funzionalità Tone.js rimossa: qui puoi aggiungere altre gesture o logica)
+
   }
   pop();
 }
@@ -92,11 +98,20 @@ function drawHandConnections(landmarks) {
 }
 
 // Callback function per handpose
-function gotHands(results) {
-  hands = results;
-  console.log('Risultati handpose:', results);
-  if (results.length === 0) {
-    // Mostra un messaggio a schermo se nessuna mano viene rilevata
+
+// Funzione throttled per aggiornare i risultati handpose meno frequentemente
+function gotHandsThrottled(results) {
+  const now = performance.now();
+  if (now - lastPredictionTime > PREDICTION_INTERVAL) {
+    hands = results;
+    lastPredictionTime = now;
+  } else {
+    // Mantieni i risultati precedenti se troppo presto
+    hands = lastHands;
+  }
+  lastHands = hands;
+  // Mostra/nascondi warning come prima
+  if (hands.length === 0) {
     document.getElementById('handpose-warning')?.remove();
     let warning = document.createElement('div');
     warning.id = 'handpose-warning';
